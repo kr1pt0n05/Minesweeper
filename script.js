@@ -1,22 +1,24 @@
 const minesweeper = {
 
-    difficulty : {
-        easy : {
+    difficulty : [
+        {
             name : "easy",
             size : 8,
             mines: 10
         },
-        medium : {
+        {
             name : "medium",
-            size : 16,
+            size : 12,
             mines : 40
         },
-        hard : {
+        {
             name : "hard",
-            size : 24,
+            size : 16,
             mines : 150
         }
-    },
+    ],
+
+    time : 0,
 
     createContentDiv : function(){
         const content = document.createElement("div");
@@ -77,21 +79,65 @@ const minesweeper = {
         return div;
     },
 
-    initPlayground : function(diff){
+    initPlayground : function(size){
         const playarea = document.getElementById("playarea");
         playarea.innerHTML = "";
+        const style_width = `calc((100%/ ${size}) - 2*var(--shadowsize))`;
+        const style_height = `calc((100%/ ${size}) - 2*var(--shadowsize))`;
 
-        size = this.difficulty.easy.size;
         for(let i = 0; i < size; i++){
             for(let j = 0; j < size; j++){
                 const cell = document.createElement("div");
                 cell.classList = "cell covered";
-                cell.dataset.x = i;
-                cell.dataset.y = j;
+                cell.dataset.x = j;
+                cell.dataset.y = i;
+                cell.style.width = style_width;
+                cell.style.height = style_height;
+
+                cell.addEventListener("click", (event) =>{
+                    this.cellClicked(event);
+                });
+
+                cell.addEventListener("contextmenu", (event) =>{
+                    this.cellClicked(event);
+                });
+
+                cell.addEventListener("touchstart", (event) =>{
+                    this.time = Date.now();
+                });
+
+                cell.addEventListener("touchend", (event) =>{
+                    const time_elapsed = Date.now() - this.time;
+                    if(time_elapsed < 200){
+                        alert("left click");
+                    }else{
+                        alert("right click");
+                    }
+
+                    //this.cellClicked(event);
+                });
+                
                 playarea.appendChild(cell);
             }
         }
 
+    },
+
+    startGame : function(gametype){
+        this.difficulty.forEach((diff) => {
+            if(gametype == diff.name){
+                this.initPlayground(diff.size);
+            }
+        });
+    },
+
+    cellClicked : function(event){
+        event.preventDefault();
+        const x = event.target.dataset.x;
+        const y = event.target.dataset.y;
+        console.log(event);
+
+    
     },
 
     init : function(){
@@ -101,18 +147,31 @@ const minesweeper = {
         const footer = this.createFooter();
         const playfield = this.createPlayarea();
         const buttonbar = this.createButtonbar();
+        const button_easy = this.createSingleButton(1, "Easy");
+        const button_medium = this.createSingleButton(2, "Medium");
+        const button_hard = this.createSingleButton(3, "Hard");
 
         content.appendChild(header);
         content.appendChild(playfield);
         content.appendChild(buttonbar);
-        buttonbar.appendChild(this.createSingleButton(1, "Easy"))
-        buttonbar.appendChild(this.createSingleButton(2, "Medium"))
-        buttonbar.appendChild(this.createSingleButton(3, "Hard"))
+        buttonbar.appendChild(button_easy)
+        buttonbar.appendChild(button_medium)
+        buttonbar.appendChild(button_hard)
         content.appendChild(footer);
         body.appendChild(content);
 
-        this.initPlayground("easy");
-        
+        button_easy.addEventListener("click", () =>{
+            this.startGame("easy");
+        });
+
+        button_medium.addEventListener("click", () =>{
+            this.startGame("medium");
+        });
+
+        button_hard.addEventListener("click", () =>{
+            this.startGame("hard");
+        });
+
     }
 };
 

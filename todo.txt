@@ -1,4 +1,3 @@
-# DEFine difficulty as array in script.js
-# Initterritory() by given number
+# increase ratio size of app for bigger playarea
 
 # Add Credits to footer
