@@ -1,0 +1,4 @@
+# DEFine difficulty as array in script.js
+# Initterritory() by given number
+
+# Add Credits to footer

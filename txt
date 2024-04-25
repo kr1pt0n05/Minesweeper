@@ -1,0 +1,96 @@
+<div class="container"> 
+
+    <header> 
+        <h1> Minesweeper </h1>
+        <h4> by Sandro Lipinski </h4>
+    </header> 
+        <div id="playarea"> 
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell "></div>
+            <div class="cell cell-symbol-1"></div>
+            <div class="cell cell-symbol-2"></div>
+            <div class="cell cell-symbol-2"></div>
+            <div class="cell cell-symbol-1"></div>
+            <div class="cell "></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell "></div>
+            <div class="cell cell-symbol-flag-1"></div>
+            <div class="cell covered cell-symbol-flag"></div>
+            <div class="cell covered cell-symbol-flag"></div>
+            <div class="cell cell-symbol-2"></div>
+            <div class="cell cell-symbol-1"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell "></div>
+            <div class="cell cell-symbol-1"></div>
+            <div class="cell cell-symbol-3"></div>
+            <div class="cell cell-symbol-4"></div>
+            <div class="cell covered cell-symbol-flag"></div>
+            <div class="cell cell-symbol-1"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell "></div>
+            <div class="cell cell-symbol-1"></div>
+            <div class="cell cell-symbol-bomb"></div>
+            <div class="cell cell-symbol-2"></div>
+            <div class="cell cell-symbol-1"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+            <div class="cell covered"></div>
+        </div>
+
+        <div class="buttons"> 
+            <button id="easy"> Easy </button>
+            <button id="medium"> Medium </button>
+            <button id="hard"> Hard </button>
+        </div>
+    <footer>
+        Credits:
+        <br><a href="https://www.flaticon.com/free-icons/91" title="91 icons">Number icons created by Md Tanvirul Haque - Flaticon</a>
+        <br><a href="https://www.flaticon.com/free-icons/bomb" title="bomb icons">Bomb icons created by Freepik - Flaticon</a>
+        <br><a href="https://www.flaticon.com/free-icons/flag" title="flag icons">Flag icons created by Pixel perfect - Flaticon</a>
+        <br><a href="https://www.artstation.com/artwork/XnY2XL" title="bomb background">Bomb background created by Sibylle Hell - Artstation</a>
+        <br>
+        <br>&copy; Sandro Lipinski
+    </footer>
+
+    </div>
