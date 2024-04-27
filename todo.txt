@@ -1,3 +1,6 @@
 # increase ratio size of app for bigger playarea
 
+# game bugging for medium size
+
+
 # Add Credits to footer

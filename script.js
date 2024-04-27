@@ -1,4 +1,151 @@
+const local_logic = {
+    clickCounter : 0,
+    size : 0,
+    mines : 0,
+
+    field : [],
+
+    init : function(size, mines){
+        this.clickCounter = 0;
+        this.size = size;
+        this.mines = mines;
+
+        for(let i = 0; i < size; i++){
+            this.field[i] = [];
+            for(let j = 0; j < size; j++){
+                this.field[i].push(false);
+            }
+        }
+    },
+
+    placeMines : function(click_x, click_y){
+        for(let i = 0; i < this.mines; i++){
+            let minePlaced = false;
+
+            while(minePlaced == false){
+                const x = Math.floor(Math.random() * this.size);
+                const y = Math.floor(Math.random() * this.size);
+
+                if((x != click_x || y != click_y) && this.field[x][y] != true){
+                    this.field[x][y] = true;
+                    minePlaced = true;
+                }
+            }
+        }
+    },
+
+    getNeighbors : function(x, y){
+        const neighbors = [];
+        let x_ = +x + +2;
+        let y_ = +y + +2;
+
+        for(let i = x-1; i < x_; i++){
+            if(i < 0 || i > this.size-1) continue;
+
+            for(let j = y-1; j < y_; j++){
+                if(j < 0 || j > this.size-1) continue;
+                    neighbors.push({"x": i, "y": j});
+            }
+        }
+        return neighbors;
+    },
+
+    isInList: function(arr, x, y) {
+        return arr.some(function(element) {
+            return element.x == x && element.y == y;
+        });
+    },
+
+         // check every adjacent cell of todo's cells if they got mines around them
+            // if so: check if they got a bomb
+                // if not: check if they are in done
+                    // if not: put them into done
+            // else: check if they are in todo, check if they are in done
+                // if not: put them into todo
+        // when finished: delete neighbor's checked cell out of todo and push into done
+        // loop, until todo is empty
+
+    getEmptyCells : function(x, y){
+        const todo = [];
+        const done = [];
+
+        // put first cell into todo
+        todo.push({"x": x, "y": y, "minesAround": 0});
+        while(todo.length > 0){
+            current_cell = todo[0];
+            // get all neighboring cells
+            const neighbors = this.getNeighbors(current_cell.x, current_cell.y);
+            // handle neighbor depending, if they got a mine, mines around them or are already in done
+            neighbors.forEach((neighbor) => {
+                const x = neighbor.x;
+                const y = neighbor.y;
+                if(this.field[x][y] == false && !this.isInList(done, x, y)){
+                    const mines = this.countMinesAroundCell(x, y);
+                    const obj = {"x": x, "y": y, "minesAround": mines};
+
+                    if(mines > 0){
+                        done.push(obj);
+                    }else{
+                        if(!this.isInList(todo, x, y)){
+                            todo.push(obj);
+                        }
+                    }
+                }
+            });
+            // delete checked cell out of todo
+            // and push into done
+            todo.shift();
+            done.push(current_cell);
+        }
+       return done;
+    },
+
+    sweep : function(x, y){
+        this.clickCounter++;
+
+        if(this.clickCounter == 1){
+            this.placeMines(x, y);
+        }
+
+        if(this.field[x][y] == true){
+            return {"mineHit": true}
+
+        }else{
+            const mines = this.countMinesAroundCell(x,y);
+            if(mines > 0){
+                return {"mineHit": false, "mines": mines};
+
+            }else{
+                return {"mineHit": false, "mines": mines, "emptyCells": this.getEmptyCells(x, y)}
+            }   
+        }
+    },
+
+    countMinesAroundCell : function(x, y){
+        let mines = 0;
+        
+        let x_ = +x + +2;
+        let y_ = +y + +2;
+
+        for(let i = x-1; i < x_; i++){
+            if(i < 0) continue;
+            if(i > this.size-1) continue;
+
+            for(let j = y-1; j < y_; j++){
+                if(j < 0) continue;
+                if(j > this.size-1) continue;
+
+                if(this.field[i][j] == true){
+                    mines++;
+                }
+            }
+        }
+        return mines;
+    },
+};
+
 const minesweeper = {
+    logic : local_logic,    
 
     difficulty : [
         {
@@ -9,12 +156,12 @@ const minesweeper = {
         {
             name : "medium",
             size : 12,
-            mines : 40
+            mines : 22,
         },
         {
             name : "hard",
             size : 16,
-            mines : 150
+            mines : 40,
         }
     ],
 
@@ -109,7 +256,7 @@ const minesweeper = {
                 cell.addEventListener("touchend", (event) =>{
                     const time_elapsed = Date.now() - this.time;
                     if(time_elapsed < 200){
-                        alert("left click");
+                        this.cellClicked(event);
                     }else{
                         alert("right click");
                     }
@@ -127,16 +274,50 @@ const minesweeper = {
         this.difficulty.forEach((diff) => {
             if(gametype == diff.name){
                 this.initPlayground(diff.size);
+                this.logic.init(diff.size, diff.mines)
             }
         });
+    },
+
+    getCell : function(x, y){
+        const cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+        return cell;
+    },
+
+    uncoverCell : function(x, y){
+        const cell = this.getCell(x, y);
+        cell.classList = "cell";
+    },
+
+    displayNumber : function(x, y, mines){
+        const cell = this.getCell(x, y);
+        cell.classList += ` cell-symbol-${mines}`;
     },
 
     cellClicked : function(event){
         event.preventDefault();
         const x = event.target.dataset.x;
         const y = event.target.dataset.y;
-        console.log(event);
+        const hasHitMine = this.logic.sweep(x, y);
+        
+        if(hasHitMine.mineHit){
+            this.uncoverCell(x, y);
+            const cell = this.getCell(x, y);
+            cell.classList+= " cell-symbol-bomb";
+        }else{
+            const emptyCells = hasHitMine.emptyCells;
 
+            this.uncoverCell(x, y);
+            const mines = hasHitMine.mines;
+            this.displayNumber(x, y, mines);
+
+            if(emptyCells != undefined){
+                emptyCells.forEach((cell) =>{
+                    this.uncoverCell(cell.x, cell.y);
+                    this.displayNumber(cell.x, cell.y, cell.minesAround);
+                })
+            }
+        }
     
     },
 
