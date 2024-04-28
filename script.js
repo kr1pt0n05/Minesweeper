@@ -223,11 +223,15 @@ const minesweeper = {
         const div = document.createElement("div");
         const p1 = document.createElement("p");
         
-        p1.innerText = "Credits:";
-
         div.appendChild(p1);
-        div.appendChild(document.createElement("br"));
-        div.innerHTML = "&copy Sandro Lipinski";    
+        div.appendChild(document.createElement("br"));   
+        div.innerHTML = `
+        Credits:
+        <br><a href="https://www.flaticon.com/free-icons/91" title="91 icons">Number icons created by Md Tanvirul Haque - Flaticon</a>
+        <br><a href="https://www.flaticon.com/free-icons/bomb" title="bomb icons">Bomb icons created by Freepik - Flaticon</a>
+        <br><a href="https://www.flaticon.com/free-icons/flag" title="flag icons">Flag icons created by Pixel perfect - Flaticon</a>
+        <br><a href="https://www.artstation.com/artwork/XnY2XL" title="bomb background">Bomb background created by Sibylle Hell - Artstation</a>
+    `; 
         footer.appendChild(div);
 
         return footer;
