@@ -4,6 +4,7 @@ const local_logic = {
     mines : 0,
 
     field : [],
+    uncoveredCells : [],
 
     init : function(size, mines){
         this.clickCounter = 0;
@@ -12,8 +13,10 @@ const local_logic = {
 
         for(let i = 0; i < size; i++){
             this.field[i] = [];
+            this.uncoveredCells[i] = [];
             for(let j = 0; j < size; j++){
                 this.field[i].push(false);
+                this.uncoveredCells[i].push(false);
             }
         }
     },
@@ -26,7 +29,7 @@ const local_logic = {
                 const x = Math.floor(Math.random() * this.size);
                 const y = Math.floor(Math.random() * this.size);
 
-                if((x != click_x || y != click_y) && this.field[x][y] != true){
+                if(this.field[x][y] != true && Math.abs(click_x - x) > 1 || Math.abs(click_y - y) > 1){
                     this.field[x][y] = true;
                     minePlaced = true;
                 }
@@ -100,12 +103,24 @@ const local_logic = {
        return done;
     },
 
+    countUncoveredCells : function(){
+        let count = 0;
+        this.uncoveredCells.forEach((row) => {
+            row.forEach((cell) =>{
+                if(cell) count++;
+            })
+        })
+        return count;
+    },
+
     sweep : function(x, y){
         this.clickCounter++;
 
         if(this.clickCounter == 1){
             this.placeMines(x, y);
         }
+
+        this.uncoveredCells[x][y] = true;
 
         if(this.field[x][y] == true){
             return {"mineHit": true}
@@ -116,7 +131,11 @@ const local_logic = {
                 return {"mineHit": false, "mines": mines};
 
             }else{
-                return {"mineHit": false, "mines": mines, "emptyCells": this.getEmptyCells(x, y)}
+                const emptyCells = this.getEmptyCells(x, y);
+                emptyCells.forEach((cell) =>{
+                    this.uncoveredCells[cell.x][cell.y] = true;
+                })
+                return {"mineHit": false, "mines": mines, "emptyCells": emptyCells};
             }   
         }
     },
@@ -142,6 +161,16 @@ const local_logic = {
         }
         return mines;
     },
+
+    getMines : function(){
+        const mines = [];
+        for(let i = 0; i<this.size; i++){
+            for(let j = 0; j<this.size; j++){
+                if(this.field[i][j]) mines.push({"x": i, "y": j});
+            }
+        }
+        return mines;
+    }
 };
 
 const minesweeper = {
@@ -226,6 +255,11 @@ const minesweeper = {
         return div;
     },
 
+    rightClick : function(x, y){
+        const cell = this.getCell(x, y);
+        cell.classList.toggle("cell-symbol-flag");
+    },
+
     initPlayground : function(size){
         const playarea = document.getElementById("playarea");
         playarea.innerHTML = "";
@@ -242,26 +276,32 @@ const minesweeper = {
                 cell.style.height = style_height;
 
                 cell.addEventListener("click", (event) =>{
+                    event.preventDefault();
                     this.cellClicked(event);
                 });
 
                 cell.addEventListener("contextmenu", (event) =>{
-                    this.cellClicked(event);
+                    event.preventDefault();
+                    const x = event.target.dataset.x;
+                    const y = event.target.dataset.y;
+                    this.rightClick(x, y);
                 });
 
                 cell.addEventListener("touchstart", (event) =>{
+                    event.preventDefault();
                     this.time = Date.now();
                 });
 
                 cell.addEventListener("touchend", (event) =>{
+                    event.preventDefault();
                     const time_elapsed = Date.now() - this.time;
-                    if(time_elapsed < 200){
+                    if(time_elapsed < 100){
                         this.cellClicked(event);
                     }else{
-                        alert("right click");
+                        const x = event.target.dataset.x;
+                        const y = event.target.dataset.y;
+                        this.rightClick(x, y);
                     }
-
-                    //this.cellClicked(event);
                 });
                 
                 playarea.appendChild(cell);
@@ -294,16 +334,34 @@ const minesweeper = {
         cell.classList += ` cell-symbol-${mines}`;
     },
 
+    playerWon : function(){
+        return (this.logic.countUncoveredCells() + this.logic.mines) == (this.logic.size**2);
+    },
+
     cellClicked : function(event){
         event.preventDefault();
         const x = event.target.dataset.x;
         const y = event.target.dataset.y;
-        const hasHitMine = this.logic.sweep(x, y);
+
+        if(!this.getCell(x, y).classList.contains("cell-symbol-flag")){
+
+            const hasHitMine = this.logic.sweep(x, y);
         
         if(hasHitMine.mineHit){
             this.uncoverCell(x, y);
             const cell = this.getCell(x, y);
-            cell.classList+= " cell-symbol-bomb";
+            cell.style.backgroundColor = "crimson";
+
+            const minesLeft = this.logic.getMines();
+            minesLeft.forEach((mine) =>{
+                const x = mine.x;
+                const y = mine.y;
+                const cell = this.getCell(x, y);
+
+                this.uncoverCell(x, y);
+                cell.classList += " cell-symbol-bomb";
+            })
+            this.displayOverlay("You lost!");
         }else{
             const emptyCells = hasHitMine.emptyCells;
 
@@ -318,7 +376,9 @@ const minesweeper = {
                 })
             }
         }
-    
+        if(this.playerWon()) this.displayOverlay("Congrats, you won!");
+        }
+
     },
 
     init : function(){
@@ -352,6 +412,19 @@ const minesweeper = {
         button_hard.addEventListener("click", () =>{
             this.startGame("hard");
         });
+
+    },
+
+    displayOverlay : function(text){
+        const overlay = document.createElement("div");
+        const textholder = document.createElement("div");
+        const playarea = document.getElementById("playarea");
+
+        overlay.classList = "overlay";
+        textholder.innerText = text;
+
+        overlay.appendChild(textholder);
+        playarea.appendChild(overlay);
 
     }
 };
